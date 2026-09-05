@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Henrique Vasconcellos Filho — Portfolio</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500&display=swap');
+
+  :root {
+    --bg: #F1F3EF;
+    --ink: #1E2420;
+    --line: #C7CDC3;
+    --accent: #3D5A45;
+    --muted: #6B7268;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    padding: 64px 24px;
+  }
+
+  main {
+    width: 100%;
+    max-width: 440px;
+  }
+
+  .identity {
+    margin-bottom: 48px;
+  }
+
+  .identity img {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    object-fit: cover;
+    display: block;
+    margin-bottom: 20px;
+    filter: grayscale(15%);
+  }
+
+  h1 {
+    font-family: 'Fraunces', serif;
+    font-weight: 500;
+    font-size: 30px;
+    letter-spacing: -0.01em;
+    margin: 0 0 6px 0;
+  }
+
+  .role {
+    color: var(--muted);
+    font-size: 14.5px;
+    margin: 0;
+    line-height: 1.65;
+  }
+
+  nav {
+    display: flex;
+    flex-direction: column;
+  }
+
+  nav a {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    text-decoration: none;
+    color: var(--ink);
+    padding: 18px 2px;
+    border-top: 1px solid var(--line);
+    font-size: 16px;
+    transition: padding-left 0.15s ease, color 0.15s ease;
+  }
+
+  nav a:last-child {
+    border-bottom: 1px solid var(--line);
+  }
+
+  nav a:hover {
+    padding-left: 8px;
+    color: var(--accent);
+  }
+
+  nav a .label {
+    font-weight: 500;
+  }
+
+  nav a .detail {
+    font-size: 13px;
+    color: var(--muted);
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+  }
+
+  nav a:hover .detail {
+    color: var(--accent);
+  }
+
+  footer {
+    margin-top: 40px;
+    font-size: 13px;
+    color: var(--muted);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    nav a { transition: none; }
+  }
+</style>
+</head>
+<body>
+<main>
+  <div class="identity">
+    <h1>Henrique Vasconcellos Filho</h1>
+    <p class="role">First-generation Brazilian immigrant. Penn State University — B.S. Biology, B.S. Applied Spanish, minor in Global &amp; International Studies, with certificates in Spanish for Healthcare and Global Spanish for Business. Headed toward medical school and graduate study, with a particular interest in biomedical technology and exploring culture through language.</p>
+  </div>
+
+  <nav>
+    <a href="#">
+      <span class="label">Resume</span>
+      <span class="detail">PDF</span>
+    </a>
+    <a href="photography.html">
+      <span class="label">Photography Portfolio</span>
+      <span class="detail">selected work</span>
+    </a>
+    <a href="mailto:riquinhodoria@gmail.com">
+      <span class="label">Email</span>
+      <span class="detail">riquinhodoria@gmail.com</span>
+    </a>
+  </nav>
+
+  <footer>© 2026 Henrique Vasconcellos Filho</footer>
+</main>
+</body>
+</html>

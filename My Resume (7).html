@@ -1,0 +1,379 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>My Resume</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Georgia:ital,wght@0,400;0,700;1,400&display=swap">
+
+<style>
+  /* Layout: three-column — intro | portrait | 2×2 card grid */
+  :root {
+    --bg: #ffffff;
+    --panel: #f4f4f4;
+    --card: #ffffff;
+    --card-accent: #7a9e96;
+    --card-accent-bg: #d4e6e1;
+    --text: #1a1a18;
+    --text-muted: #5a5a54;
+    --text-hint: #9a9a90;
+    --border: #e8e8e8;
+    --arrow-bg: #1a1a18;
+    --arrow-fg: #ffffff;
+    --link: #4a7a72;
+    --ff-body: Georgia, 'Times New Roman', serif;
+    --ff-label: system-ui, -apple-system, sans-serif;
+  }
+
+  /* Light-only design — no dark override */
+
+  *, *::before, *::after { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--ff-body);
+    font-size: 15px;
+    line-height: 1.6;
+    min-height: 100vh;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+    padding-block: 0;
+  }
+
+  .page {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1.6fr;
+    max-width: 1200px;
+    margin: 0 auto;
+    gap: 0;
+    min-height: 100vh;
+    align-items: center;
+  }
+
+  /* ── LEFT COLUMN ── */
+  .col-intro {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 3.5rem 2.5rem 3.5rem 0;
+    min-width: 0;
+  }
+
+  .eyebrow {
+    font-family: var(--ff-label);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--text-hint);
+    margin-bottom: 1.2rem;
+  }
+
+  .resume-title {
+    font-family: var(--ff-body);
+    font-size: 2.4rem;
+    font-weight: 700;
+    line-height: 1.15;
+    text-wrap: balance;
+    color: var(--text);
+    margin: 0 0 1.4rem 0;
+  }
+
+  .intro-text {
+    font-size: 14px;
+    color: var(--text-muted);
+    line-height: 1.72;
+    margin: 0 0 2.2rem 0;
+    max-width: 28ch;
+  }
+
+  .arrow-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    background: var(--arrow-bg);
+    color: var(--arrow-fg);
+    border-radius: 50%;
+    text-decoration: none;
+    font-size: 18px;
+    transition: opacity 0.18s, transform 0.18s;
+    flex-shrink: 0;
+    align-self: flex-start;
+    border: none;
+    cursor: pointer;
+  }
+
+  .arrow-btn:hover {
+    opacity: 0.75;
+    transform: translateX(3px);
+  }
+
+  /* ── CENTER COLUMN ── */
+  .col-photo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2.5rem 2rem;
+    border-right: 1px solid var(--border);
+    min-width: 0;
+  }
+
+  .portrait-wrap {
+    width: 100%;
+    max-width: 300px;
+    aspect-ratio: 3/4;
+    border-radius: 4px;
+    overflow: hidden;
+    background: var(--panel);
+    position: relative;
+  }
+
+  .portrait-wrap img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .portrait-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 1rem;
+    color: var(--text-hint);
+  }
+
+  .portrait-placeholder svg {
+    width: 64px;
+    height: 64px;
+    opacity: 0.4;
+  }
+
+  .portrait-placeholder span {
+    font-family: var(--ff-label);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  /* ── RIGHT COLUMN — 2×2 CARDS ── */
+  .col-cards {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2.5rem 2rem;
+    min-width: 0;
+    align-self: center;
+  }
+
+  .cards-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 1rem;
+    width: 100%;
+  }
+
+  .card {
+    padding: 1.8rem 1.6rem 1.6rem;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    display: flex;
+    flex-direction: column;
+    background: var(--card);
+    aspect-ratio: 1 / 1;
+  }
+
+  .card-accent {
+    background: var(--card-accent-bg);
+  }
+
+  .card-label {
+    font-family: var(--ff-label);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--text-hint);
+    margin-bottom: 0.65rem;
+  }
+
+  .card-heading {
+    font-family: var(--ff-body);
+    font-size: 1.15rem;
+    font-weight: 700;
+    line-height: 1.25;
+    text-wrap: balance;
+    color: var(--text);
+    margin: 0 0 0.9rem 0;
+  }
+
+  .card-accent .card-heading,
+  .card-accent .card-label {
+    color: var(--card-accent);
+  }
+
+  .card-body {
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.68;
+    margin: 0;
+    flex: 1;
+  }
+
+  .card-accent .card-body {
+    color: color-mix(in srgb, var(--card-accent) 70%, var(--text-muted));
+  }
+
+  .card-link {
+    display: inline-block;
+    margin-top: 1.4rem;
+    font-family: var(--ff-label);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--link);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    text-decoration-thickness: 1px;
+    letter-spacing: 0.03em;
+    cursor: pointer;
+    transition: opacity 0.15s;
+    align-self: flex-start;
+  }
+
+  .card-accent .card-link {
+    color: var(--card-accent);
+  }
+
+  .card-link:hover { opacity: 0.65; }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 860px) {
+    .page {
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: auto auto;
+    }
+    .col-intro {
+      grid-column: 1;
+      grid-row: 1;
+      padding: 2.5rem 1.5rem 2rem 0;
+    }
+    .col-photo {
+      grid-column: 2;
+      grid-row: 1;
+      border-right: none;
+      border-bottom: 1px solid var(--border);
+      padding: 2.5rem 0 2rem 1.5rem;
+    }
+    .col-cards {
+      grid-column: 1 / -1;
+      grid-row: 2;
+    }
+  }
+
+  @media (max-width: 540px) {
+    .page {
+      grid-template-columns: 1fr;
+    }
+    .col-intro {
+      padding: 2.5rem 0 2rem 0;
+      border-right: none;
+      border-bottom: 1px solid var(--border);
+    }
+    .col-photo {
+      grid-column: 1;
+      grid-row: 2;
+      border-right: none;
+      border-bottom: 1px solid var(--border);
+      padding: 2rem 0;
+    }
+    .col-cards {
+      grid-column: 1;
+      grid-row: 3;
+      grid-template-columns: 1fr;
+    }
+    .card {
+      border-right: none !important;
+      border-bottom: 1px solid var(--border) !important;
+    }
+    .card:last-child {
+      border-bottom: none !important;
+    }
+    .resume-title { font-size: 2rem; }
+  }
+</style>
+
+<div class="page">
+
+  <!-- LEFT: Intro -->
+  <div class="col-intro">
+    <p class="eyebrow">Portfolio · 2026</p>
+    <h1 class="resume-title">My Resume</h1>
+    <p class="intro-text">
+      A concise overview of my experience, skills, and the work I've done. Each section below reflects a different dimension of who I am and what I bring.
+    </p>
+    <a class="arrow-btn" href="#about" title="View more">→</a>
+  </div>
+
+  <!-- CENTER: Portrait -->
+  <div class="col-photo">
+    <div class="portrait-wrap" id="portrait-wrap">
+      <div class="portrait-placeholder" id="portrait-placeholder">
+        <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="32" cy="22" r="12" stroke="currentColor" stroke-width="2"/>
+          <path d="M8 56c0-13.255 10.745-24 24-24s24 10.745 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        <span>Your photo here</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT: 2×2 Cards -->
+  <div class="col-cards">
+  <div class="cards-grid">
+
+    <div class="card" id="about">
+      <span class="card-label">01</span>
+      <h2 class="card-heading">About Me</h2>
+      <p class="card-body">
+        A brief introduction to who I am — my background, values, and what drives my work. I bring curiosity and care to everything I take on.
+      </p>
+      <a class="card-link">View More</a>
+    </div>
+
+    <div class="card">
+      <span class="card-label">02</span>
+      <h2 class="card-heading">What I Do</h2>
+      <p class="card-body">
+        A look at the disciplines and skills I work in day-to-day. From design and strategy to execution and delivery, I focus on outcomes that matter.
+      </p>
+      <a class="card-link">View More</a>
+    </div>
+
+    <div class="card">
+      <span class="card-label">03</span>
+      <h2 class="card-heading">How It Works</h2>
+      <p class="card-body">
+        My process and approach to projects — how I think through problems, collaborate with teams, and move from idea to something real and usable.
+      </p>
+      <a class="card-link">View More</a>
+    </div>
+
+    <div class="card card-accent">
+      <span class="card-label">04</span>
+      <h2 class="card-heading">Contact Me</h2>
+      <p class="card-body">
+        Interested in working together or just want to connect? Reach out and I'll get back to you. I'm always open to interesting conversations.
+      </p>
+      <a class="card-link">View More</a>
+    </div>
+
+  </div>
+  </div>
+</div>
+
+</body></html>

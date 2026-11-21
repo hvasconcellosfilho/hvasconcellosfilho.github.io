@@ -178,7 +178,7 @@
     width: 100%;
   }
 
-  .card {
+ .card {
     padding: 1.8rem 1.6rem 1.6rem;
     border: 1px solid var(--border);
     border-radius: 4px;
@@ -186,6 +186,12 @@
     flex-direction: column;
     background: var(--card);
     aspect-ratio: 1 / 1;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+
+  .card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
   }
 
   .card-accent {

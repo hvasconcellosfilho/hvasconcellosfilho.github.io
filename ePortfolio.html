@@ -651,7 +651,14 @@
     { code:'tr',    name:'Türkçe' },
   ];
   var activeLang = 'en';
-  try { activeLang = localStorage.getItem('portfolio-lang') || 'en'; } catch(e) {}
+  try {
+    var gtMatch = document.cookie.match(/googtrans=\/en\/([^;]+)/);
+    if (gtMatch) {
+      activeLang = decodeURIComponent(gtMatch[1]);
+    } else {
+      activeLang = localStorage.getItem('portfolio-lang') || 'en';
+    }
+  } catch(e) {}
 
   function buildList(filter) {
     langList.innerHTML = '';

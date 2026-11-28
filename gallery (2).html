@@ -1,0 +1,1637 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Photography Portfolio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,400..500;1,6..72,400&family=Oswald:wght@500;600&display=swap" rel="stylesheet" />
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js"
+      }
+    }
+  </script>
+  <style>
+    :root {
+      --wall: #FFF9EC;
+      --ink: #3A3550;
+      --ink-60: rgba(58, 53, 80, .6);
+      --ink-35: rgba(58, 53, 80, .35);
+      --ink-15: rgba(58, 53, 80, .15);
+      --page: #FFF9EF;
+      --u: min(calc(100vw / 1440), calc(100vh / 900));
+    }
+
+    @media (max-width: 819px), (orientation: portrait) and (max-width: 1100px), (orientation: landscape) and (max-height: 500px) {
+      :root {
+        --u: 1px;
+      }
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      height: 100%;
+      margin: 0;
+      overflow: hidden;
+      background: var(--wall);
+      color: var(--ink);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    button {
+      background: none;
+      border: none;
+      padding: 0;
+      font: inherit;
+      color: inherit;
+      cursor: pointer;
+    }
+
+    /* 3D Gallery */
+    main#gallery {
+      position: fixed;
+      inset: 0;
+      touch-action: none;
+      cursor: grab;
+      z-index: 1;
+    }
+
+    main#gallery.dragging {
+      cursor: grabbing;
+    }
+
+    main#gallery.hover-print {
+      cursor: pointer;
+    }
+
+    main#gallery canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    #veil {
+      position: fixed;
+      inset: 0;
+      background: var(--wall);
+      z-index: 25;
+      pointer-events: none;
+    }
+
+    /* Gallery HUD */
+    .gui {
+      position: fixed;
+      inset: 0;
+      z-index: 20;
+      pointer-events: none;
+    }
+
+    .gui-arrows,
+    .gui-hint,
+    .gui-caption {
+      transition: opacity 0.3s ease, visibility 0.3s ease;
+    }
+
+    body.list-open .gui-arrows,
+    body.list-open .gui-hint,
+    body.list-open .gui-caption {
+      opacity: 0;
+      visibility: hidden;
+    }
+
+    .gui-arrows,
+    .gui-toggle {
+      pointer-events: auto;
+    }
+
+    .mask {
+      display: block;
+      overflow: hidden;
+    }
+
+    .rise {
+      display: block;
+    }
+
+    .gui-arrows {
+      position: absolute;
+      right: calc(27 * var(--u));
+      bottom: calc(32 * var(--u));
+      display: flex;
+      flex-direction: row;
+      gap: calc(10 * var(--u));
+    }
+
+    .arrow-btn {
+      width: calc(50 * var(--u));
+      height: calc(50 * var(--u));
+      border-radius: 50%;
+      border: 1.5px solid var(--ink);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.25s ease, color 0.25s ease;
+    }
+
+    .arrow-btn svg {
+      width: calc(20 * var(--u));
+      height: calc(20 * var(--u));
+    }
+
+    .arrow-btn:hover {
+      background: var(--ink);
+      color: var(--wall);
+    }
+
+    .gui-hint {
+      position: absolute;
+      right: calc(27 * var(--u));
+      bottom: calc(150 * var(--u));
+      text-align: right;
+      font-family: "DM Mono", ui-monospace, monospace;
+      font-size: max(11px, calc(10 * var(--u)));
+      letter-spacing: 0.12em;
+      line-height: 1.65;
+      text-transform: uppercase;
+    }
+
+    .gui-toggle {
+      position: absolute;
+      right: calc(29 * var(--u));
+      bottom: calc(104 * var(--u));
+      border: 1px solid var(--ink-35);
+      border-radius: 99px;
+      padding: calc(2 * var(--u));
+      display: inline-flex;
+      gap: calc(2 * var(--u));
+      transition: background 0.3s ease;
+    }
+
+    body.list-open .gui-toggle {
+      background: var(--page);
+    }
+
+    .toggle-btn {
+      height: max(24px, calc(22 * var(--u)));
+      padding: 0 calc(14 * var(--u));
+      border-radius: 99px;
+      font-family: "DM Mono", ui-monospace, monospace;
+      font-size: max(11px, calc(9.5 * var(--u)));
+      letter-spacing: 0.12em;
+      transition: background 0.25s ease, color 0.25s ease;
+    }
+
+    .toggle-btn.active {
+      background: var(--ink);
+      color: var(--wall);
+    }
+
+    .gui-caption {
+      position: absolute;
+      left: calc(25 * var(--u));
+      bottom: calc(30 * var(--u));
+    }
+
+    .gui-kicker {
+      font-family: "DM Mono", ui-monospace, monospace;
+      font-size: max(11px, calc(11.5 * var(--u)));
+      letter-spacing: 0.14em;
+      width: max-content;
+      margin: 0 0 calc(10 * var(--u)) calc(3 * var(--u));
+    }
+
+    .gui-headline {
+      font-family: "Oswald", "Arial Narrow", sans-serif;
+      font-weight: 600;
+      font-size: calc(130 * var(--u));
+      line-height: 0.82;
+      letter-spacing: 0.005em;
+      white-space: nowrap;
+      transform: scaleX(0.855);
+      transform-origin: bottom left;
+      margin: 0;
+    }
+
+    .gui-headline .br-mobile {
+      display: none;
+    }
+
+    .gui-headline .mask {
+      padding: 0.08em 0 0.14em;
+      margin: -0.08em 0 -0.14em;
+    }
+
+    /* Floating Cursor Pill */
+    #open-pill {
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 22;
+      pointer-events: none;
+      background: #1e1b2b;
+      color: #ffffff;
+      font-family: "DM Mono", ui-monospace, monospace;
+      font-size: max(11px, calc(10 * var(--u)));
+      letter-spacing: 0.14em;
+      padding: calc(7 * var(--u)) calc(13 * var(--u));
+      border-radius: 99px;
+      opacity: 0;
+      transition: opacity 0.12s ease;
+      transform: translate(-50%, -50%);
+      white-space: nowrap;
+    }
+
+    /* List View */
+    section#list {
+      position: fixed;
+      inset: 0;
+      z-index: 14;
+      background: var(--page);
+      overflow-y: auto;
+      padding: 56px 24px 96px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+
+    section#list.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .list-heading {
+      font-family: "Oswald", "Arial Narrow", sans-serif;
+      font-weight: 600;
+      font-size: 32px;
+      letter-spacing: 0.005em;
+      max-width: 1000px;
+      margin: 0 auto 32px;
+    }
+
+    .list-grid {
+      max-width: 1000px;
+      margin: 0 auto;
+      columns: 3 240px;
+      column-gap: 14px;
+    }
+
+    .list-grid figure {
+      margin: 0 0 14px;
+      break-inside: avoid;
+      cursor: zoom-in;
+      overflow: hidden;
+      background: #F6EAD8;
+    }
+
+    .list-grid img {
+      width: 100%;
+      height: auto;
+      aspect-ratio: auto 4 / 5;
+      display: block;
+      transition: transform 0.3s ease;
+    }
+
+    .list-grid figure:hover img {
+      transform: scale(1.02);
+    }
+
+    /* Lightbox */
+    .lightbox {
+      position: fixed;
+      inset: 0;
+      z-index: 50;
+      background: rgba(30, 27, 43, 0.94);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 32px;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.25s ease, visibility 0.25s ease;
+    }
+
+    .lightbox.open {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .lightbox img {
+      max-width: 100%;
+      max-height: 90vh;
+      object-fit: contain;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+    }
+
+    .lightbox .lb-btn {
+      position: absolute;
+      color: #FFF9EC;
+      font-family: "DM Mono", ui-monospace, monospace;
+      font-size: 13px;
+      letter-spacing: 0.12em;
+      min-width: 44px;
+      min-height: 44px;
+      padding: 10px 14px;
+      opacity: 0.85;
+      transition: opacity 0.2s ease;
+    }
+
+    .lightbox .lb-btn:hover {
+      opacity: 1;
+    }
+
+    .lightbox .lb-close {
+      top: 16px;
+      right: 16px;
+    }
+
+    .lightbox .lb-prev,
+    .lightbox .lb-next {
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 28px;
+      letter-spacing: 0;
+    }
+
+    .lightbox .lb-prev {
+      left: 8px;
+    }
+
+    .lightbox .lb-next {
+      right: 8px;
+    }
+
+    /* Small-screen layout */
+    @media (max-width: 819px), (orientation: portrait) and (max-width: 1100px), (orientation: landscape) and (max-height: 500px) {
+      .gui-hint {
+        top: 16px;
+        left: 16px;
+        right: 16px;
+        bottom: auto;
+        text-align: left;
+        font-size: 11px;
+      }
+
+      .gui-caption {
+        left: 14px;
+        bottom: 124px;
+      }
+
+      .gui-kicker {
+        font-size: 11px;
+        margin-left: 0;
+      }
+
+      .gui-headline {
+        font-size: min(14.5vw, 13vh);
+        white-space: normal;
+        line-height: 0.84;
+        transform: none;
+      }
+
+      .gui-headline .br-mobile {
+        display: inline;
+      }
+
+      .gui-arrows {
+        right: 16px;
+        bottom: 20px;
+      }
+
+      .arrow-btn {
+        width: 44px;
+        height: 44px;
+      }
+
+      .arrow-btn svg {
+        width: 18px;
+        height: 18px;
+      }
+
+      .gui-toggle {
+        right: 16px;
+        bottom: 78px;
+      }
+
+      .toggle-btn {
+        height: 26px;
+      }
+
+      section#list {
+        padding: 32px 16px 96px;
+      }
+
+      .lightbox {
+        padding: 16px;
+      }
+    }
+
+    @media (orientation: landscape) and (max-height: 500px) {
+      .gui-headline {
+        font-size: min(7.5vw, 20vh);
+        white-space: nowrap;
+      }
+
+      .gui-headline .br-mobile {
+        display: none;
+      }
+
+      .gui-caption {
+        bottom: 18px;
+      }
+
+      .gui-hint {
+        display: none;
+      }
+
+      .gui-arrows {
+        right: 16px;
+        bottom: 20px;
+      }
+
+      .gui-toggle {
+        top: 16px;
+        right: 16px;
+        bottom: auto;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        transition-duration: 0s !important;
+        animation-duration: 0s !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main id="gallery">
+    <div id="veil"></div>
+  </main>
+
+  <div class="gui" id="gui">
+    <div class="gui-arrows">
+      <button type="button" class="arrow-btn" id="btn-prev" aria-label="Walk backward">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+          <path d="M19 12H5M11 6l-6 6 6 6" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+      </button>
+      <button type="button" class="arrow-btn" id="btn-next" aria-label="Walk forward">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+          <path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+      </button>
+    </div>
+
+    <div class="gui-hint" id="gui-hint">
+      <span class="mask"><span class="rise" id="hint-1">Scroll or drag to walk round</span></span>
+      <span class="mask"><span class="rise" id="hint-2">Click a photo to look closer</span></span>
+    </div>
+
+    <div class="gui-toggle" role="tablist" aria-label="View mode">
+      <button type="button" class="toggle-btn active" id="toggle-gallery" role="tab" aria-selected="true">GALLERY</button>
+      <button type="button" class="toggle-btn" id="toggle-list" role="tab" aria-selected="false">LIST</button>
+    </div>
+
+    <div class="gui-caption">
+      <p class="gui-kicker"><span class="mask"><span class="rise">YOU ARE WALKING PAST</span></span></p>
+      <h1 class="gui-headline"><span class="mask"><span class="rise">PHOTOGRAPHY <br class="br-mobile" />PORTFOLIO</span></span></h1>
+    </div>
+  </div>
+
+  <div id="open-pill">OPEN THE PHOTO</div>
+
+  <section id="list" aria-hidden="true">
+    <h2 class="list-heading">PHOTOGRAPHY PORTFOLIO — ALL PHOTOS</h2>
+    <div class="list-grid" id="list-grid"></div>
+  </section>
+
+  <div class="lightbox" id="lightbox" aria-hidden="true" role="dialog" aria-label="Photo viewer">
+    <button type="button" class="lb-btn lb-close" id="lb-close">CLOSE ✕</button>
+    <button type="button" class="lb-btn lb-prev" id="lb-prev" aria-label="Previous photo">‹</button>
+    <img id="lb-img" src="" alt="" />
+    <button type="button" class="lb-btn lb-next" id="lb-next" aria-label="Next photo">›</button>
+  </div>
+
+  <script type="module">
+    import * as THREE from 'three';
+
+    // --- Photos ---
+    // Paths are relative to this page, so gallery.html must sit next to the photos/ folder.
+    const PHOTO_DIR = 'photos/';
+    const PHOTOS = [
+      "790225844_18239198290313290_4412374082455476735_n.jpg",
+      "658746024_18223120621313290_1416730028882361608_n.jpg",
+      "659087741_18223120468313290_6142591406497722013_n.jpg",
+      "662321916_18223120771313290_4044902010235274464_n.jpg",
+      "662352236_18223120399313290_9051802289496005093_n.jpg",
+      "688710017_18228091663313290_8466356496565242703_n.jpg",
+      "669644476_18223123825313290_6341174683506849483_n.jpg",
+      "669649190_18223120591313290_3657576189417145804_n.jpg",
+      "670663878_18223120423313290_1537951359790717828_n.jpg",
+      "669656542_18223122376313290_1279546836990782517_n.jpg",
+      "669658703_18223123207313290_8033072744281865221_n.jpg",
+      "790318215_18239198035313290_1565406769151316449_n.jpg",
+      "669679297_18223123882313290_5961417952982223466_n.jpg",
+      "669703074_18223184833313290_1870728615515974834_n.jpg",
+      "669766711_18223122235313290_1102393895670543509_n.jpg",
+      "669819983_18223122331313290_2688665398197611059_n.jpg",
+      "669842415_18223120651313290_274301430657163665_n.jpg",
+      "789342425_18239197441313290_6098202006118728786_n.jpg",
+      "669909413_18223120891313290_6155142438968519035_n.jpg",
+      "669941483_18223180975313290_112945194795211555_n.jpg",
+      "669950712_18223186270313290_6703942496872014979_n.jpg",
+      "670236097_18223122265313290_5688207403840872725_n.jpg",
+      "670267574_18223178050313290_553101573263788848_n.jpg",
+      "670276198_18223120336313290_7949380467494718509_n.jpg",
+      "670337122_18223120450313290_5251375545869625154_n.jpg",
+      "795342159_18239757574313290_2199041464092883481_n.jpg",
+      "670337126_18223124410313290_5642152415370900128_n.jpg",
+      "670351148_18224294173313290_6970415182112983787_n.jpg",
+      "670413351_18223120285313290_2021767371636302880_n.jpg",
+      "670445424_18224356132313290_4548657776746415026_n.jpg",
+      "670523469_18223124506313290_8348809584045567109_n.jpg",
+      "670537860_18223180534313290_5246733886811942002_n.jpg",
+      "670549198_18223232047313290_2974673013739838011_n.jpg",
+      "670675958_18223120879313290_8089475371877126553_n.jpg",
+      "670727517_18223120693313290_2751551677903310038_n.jpg",
+      "670775399_18223188655313290_4737658111891066499_n.jpg",
+      "670795579_18223189696313290_6348212889952018635_n.jpg",
+      "670846389_18223188481313290_4390255138596743183_n.jpg",
+      "670846558_18223120516313290_632423303119952903_n.jpg",
+      "670849807_18223123537313290_1819388409523849211_n.jpg",
+      "670867056_18224356588313290_3629149677104459437_n.jpg",
+      "670890226_18223124284313290_2173145561183564143_n.jpg",
+      "670897803_18223432468313290_1466932375615067572_n.jpg",
+      "670929760_18224354701313290_233735729112253464_n.jpg",
+      "670986551_18224355589313290_3622961064972874789_n.jpg",
+      "671182447_18224354932313290_1484353270051982837_n.jpg",
+      "671807306_18224355124313290_5959915407169422446_n.jpg",
+      "682724140_18225752392313290_4143318342973303288_n.jpg",
+      "682879635_18225388762313290_5640979412341396593_n.jpg",
+      "683746568_18225389026313290_7501562046032020999_n.jpg",
+      "683795490_18225389806313290_6228166578903436398_n.jpg",
+      "689275277_18228551611313290_6993656166158487890_n.jpg",
+      "692487406_18226433641313290_6360645676022608002_n.jpg",
+      "705386644_18228092641313290_143536154247023604_n.jpg",
+      "705394010_18228065422313290_1997355414065073702_n.jpg",
+      "705463841_18228065806313290_6230222226171836542_n.jpg",
+      "706759725_18228167542313290_6378040627870519559_n.jpg",
+      "706850701_18228173410313290_3063464005612219906_n.jpg",
+      "706868532_18228090847313290_968409954579367369_n.jpg",
+      "706930214_18228092518313290_2274861353613025238_n.jpg",
+      "707154353_18228266179313290_3960002144537329795_n.jpg",
+      "707338593_18228066022313290_6030065371908356761_n.jpg",
+      "707407163_18228173530313290_8123154242316006292_n.jpg",
+      "707678704_18228167383313290_2063016277345449194_n.jpg",
+      "708049345_18228091639313290_7905672507997943108_n.jpg",
+      "708450541_18228173209313290_730767463546898143_n.jpg",
+      "708615825_18228553033313290_1872014937134165323_n.jpg",
+      "708877268_18228553786313290_1862439343402144764_n.jpg",
+      "708926380_18228551968313290_1838249111246793348_n.jpg",
+      "708958956_18228552007313290_7597046722175135691_n.jpg",
+      "710040482_18228551671313290_1206204749098798637_n.jpg",
+      "710125747_18228914326313290_1658689969475055328_n.jpg",
+      "710147296_18228923101313290_3355246432364846760_n.jpg",
+      "710226669_18228921595313290_7461716315694343411_n.jpg",
+      "710245373_18228922513313290_5249311875565797757_n.jpg",
+      "710245522_18228915373313290_4574168931586015668_n.jpg",
+      "793901959_18239757865313290_1736988491545391931_n.jpg",
+      "713063770_18228923005313290_4139129089625492822_n.jpg",
+      "713443430_18228922054313290_8420091155231225365_n.jpg",
+      "714737918_18228922912313290_6033856059358518887_n.jpg",
+      "717168420_18229763128313290_4350228231235284511_n.jpg",
+      "717186077_18229763755313290_985559398757137616_n.jpg",
+      "718188822_18229721650313290_3729774747764554890_n.jpg",
+      "718480812_18229486339313290_7603915489319973811_n.jpg",
+      "718698809_18229722070313290_2360478609690531646_n.jpg",
+      "718726457_18229699414313290_7043031981051730626_n.jpg",
+      "719172975_18229721719313290_3720336093379004205_n.jpg",
+      "719233125_18229721935313290_2023576287869112367_n.jpg",
+      "720290568_18229762825313290_377239552784605754_n.jpg",
+      "721377289_18229763542313290_7863755741358672527_n.jpg",
+      "722384244_18229915252313290_1268215020708223168_n.jpg",
+      "723162271_18230586496313290_4363356680818106503_n.jpg",
+      "725015760_18230575609313290_3040140258066137844_n.jpg",
+      "727403248_18231602572313290_6581805092146959704_n.jpg",
+      "728157125_18231604123313290_6744887598775631974_n.jpg",
+      "728225641_18234492088313290_1302695006053979075_n.jpg",
+      "728225840_18231602794313290_6628428937728227078_n.jpg",
+      "728882803_18231603544313290_5270929792936641737_n.jpg",
+      "730320735_18231601648313290_859286178124435663_n.jpg",
+      "731787362_18233049844313290_2495893069970607057_n.jpg",
+      "733965516_18233047537313290_3600166024479115199_n.jpg",
+      "734958271_18233624554313290_2268393064444228759_n.jpg",
+      "736142149_18233049529313290_420809020673712287_n.jpg",
+      "741745681_18233145835313290_4142750992202484849_n.jpg",
+      "742391161_18233263090313290_4464373388168006888_n.jpg",
+      "743911664_18233234008313290_802856443084472844_n.jpg",
+      "744042237_18233281312313290_7044894346115123850_n.jpg",
+      "744915423_18233210542313290_3362029394767269119_n.jpg",
+      "745524926_18233751652313290_6533886486650846096_n.jpg",
+      "746319957_18233622685313290_5385071263355265282_n.jpg",
+      "746319995_18233719192313290_3083810347863666984_n.jpg",
+      "746439913_18233750461313290_6659929960921266585_n.jpg",
+      "746745166_18233621917313290_7638509195645220211_n.jpg",
+      "746823670_18233752912313290_2875136596758461633_n.jpg",
+      "747086623_18233793229313290_7328767501584664136_n.jpg",
+      "747505171_18233719711313290_7821268541584141605_n.jpg",
+      "751865283_18234428626313290_892917292089885861_n.jpg",
+      "752313193_18234525799313290_1750586691872900520_n.jpg",
+      "752708145_18234496288313290_2578251204599223351_n.jpg",
+      "747625339_18233752249313290_7656786586358586152_n.jpg",
+      "747876992_18233719840313290_3853607985703104459_n.jpg",
+      "747877077_18233719405313290_5629052553205736156_n.jpg",
+      "748359652_18234065323313290_3458946101895662304_n.jpg",
+      "748369940_18233752618313290_2204949059645969661_n.jpg",
+      "750273958_18234065428313290_8690490744894344335_n.jpg",
+      "750338861_18234428953313290_8138269414453691632_n.jpg",
+      "750355551_18234489910313290_16568220343704893_n.jpg",
+      "750684546_18234526216313290_3704822344420522730_n.jpg",
+      "751021748_18234497449313290_7842985199982694436_n.jpg",
+      "751257676_18234520204313290_6259689473395562784_n.jpg",
+      "751469277_18234517504313290_554236909536252704_n.jpg",
+      "751591555_18234496024313290_6243259886091983707_n.jpg",
+      "708853030_18228552160313290_6058791078606798738_n.jpg",
+      "751764601_18234526771313290_7700792885032684901_n.jpg",
+      "751833176_18234498451313290_2368818584647515902_n.jpg",
+      "751864673_18234517966313290_4013235677827829588_n.jpg",
+      "789959418_18239201218313290_3669367940832637119_n.jpg",
+      "753052700_18234495205313290_7944152588897241786_n.jpg",
+      "753196854_18234494329313290_7799543176422514760_n.jpg",
+      "753204709_18234491386313290_2616349552483015659_n.jpg",
+      "753205020_18234490483313290_2824906374206848000_n.jpg",
+      "753231508_18234481054313290_5326362890332030560_n.jpg",
+      "753429086_18234489691313290_381408656882656210_n.jpg",
+      "753471246_18234493621313290_2697768537149839657_n.jpg",
+      "754053590_18234525607313290_8178382507263998721_n.jpg",
+      "788996326_18239183485313290_2042225858570442340_n.jpg",
+      "789347922_18239178202313290_8726534822568294076_n.jpg",
+      "789424813_18239195602313290_7611691332565745278_n.jpg",
+      "789563136_18239196703313290_9222645638301822356_n.jpg",
+      "789680346_18239180251313290_1168017194986877790_n.jpg",
+      "789872933_18239180443313290_8519491091299333919_n.jpg",
+      "790024853_18239178493313290_5665831696802672425_n.jpg",
+      "790268612_18239178259313290_2919438485565206815_n.jpg",
+      "790585967_18239195329313290_2102705003934513004_n.jpg",
+      "790668041_18239201272313290_2088879644022548338_n.jpg",
+      "790879905_18239240359313290_6716406058095940186_n.jpg",
+      "750617546_18234481405313290_2419957110330864177_n.jpg",
+      "790879906_18239181595313290_1770286337975988750_n.jpg",
+      "749665059_18234085282313290_685036089900056264_n.jpg",
+      "790879909_18239201602313290_7017371806606227740_n.jpg",
+      "790930611_18239195161313290_4433471006829586247_n.jpg",
+      "790968925_18239240431313290_9074342317604015191_n.jpg",
+      "791245684_18239180914313290_9199978408940499570_n.jpg",
+      "791334201_18239439241313290_5450348612400764120_n.jpg",
+      "791336029_18239179168313290_5457979956829697631_n.jpg",
+      "791820056_18239439391313290_3257747079815876246_n.jpg",
+      "792191674_18239182930313290_5837183011737954147_n.jpg",
+      "793000413_18239439556313290_8308753161694336065_n.jpg",
+      "793000425_18239724235313290_2684165421088697330_n.jpg",
+      "793091522_18239758321313290_8456774925132593668_n.jpg",
+      "793595106_18239723509313290_9038692697196395580_n.jpg",
+      "793901960_18239757403313290_7706673300981541887_n.jpg",
+      "793945678_18239757142313290_3894753665619133819_n.jpg",
+      "794139361_18239723773313290_1141349480318508956_n.jpg",
+      "658137269_18223120306313290_7727920825361533872_n.jpg",
+      "794143083_18239757721313290_644157679787581046_n.jpg",
+      "794903493_18239756509313290_537715020890983829_n.jpg"
+    ];
+    const N = PHOTOS.length;
+    const photoURL = (i) => PHOTO_DIR + PHOTOS[i];
+    const photoLabel = (i) => `Photo ${i + 1}`;
+    const WALL_LABEL = 'Photo N'; // placeholder text under every frame
+
+    const WALL_EDGE = 768;       // long edge (px) of the copies shown on the walls
+    const CLOSE_EDGE = 2048;     // long edge (px) of the copy shown when stepped up close
+    const MAX_CONCURRENT = 4;    // photos downloading at once
+    const INNER_OFFSET = Math.floor(N / 2); // inner wall starts halfway through the list
+    const aspectCache = new Array(N).fill(0);
+
+    const mod = (a, n) => ((a % n) + n) % n;
+    const wrapAngle = (a) => Math.atan2(Math.sin(a), Math.cos(a));
+
+    const smallScreenMQ = window.matchMedia('(max-width: 819px), (orientation: portrait) and (max-width: 1100px), (orientation: landscape) and (max-height: 500px)');
+    const reducedMotionMQ = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const isSmallScreen = () => smallScreenMQ.matches;
+    const isPortraitSmall = () => isSmallScreen() && window.innerHeight > window.innerWidth;
+    const isReducedMotion = () => reducedMotionMQ.matches;
+
+    // --- Three.js Scene Setup ---
+    const galleryEl = document.getElementById('gallery');
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+    renderer.toneMapping = THREE.NoToneMapping;
+    galleryEl.insertBefore(renderer.domElement, document.getElementById('veil'));
+    const maxAniso = renderer.capabilities.getMaxAnisotropy();
+
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color('#FFF9EC');
+    scene.fog = new THREE.Fog('#FFF9EC', 10, 46);
+
+    const camera = new THREE.PerspectiveCamera(
+      window.innerWidth >= window.innerHeight ? 56 : 70,
+      window.innerWidth / window.innerHeight,
+      0.05,
+      100
+    );
+
+    scene.add(new THREE.HemisphereLight(0xfffdf6, 0xe9cfa6, 1.55));
+    scene.add(new THREE.AmbientLight(0xfff6e6, 0.55));
+
+    function makeVerticalGradientTexture(stops) {
+      const c = document.createElement('canvas');
+      c.width = 4;
+      c.height = 256;
+      const ctx = c.getContext('2d');
+      const g = ctx.createLinearGradient(0, 0, 0, 256);
+      stops.forEach(([offset, color]) => g.addColorStop(offset, color));
+      ctx.fillStyle = g;
+      ctx.fillRect(0, 0, 4, 256);
+      const tex = new THREE.CanvasTexture(c);
+      tex.colorSpace = THREE.SRGBColorSpace;
+      return tex;
+    }
+
+    function makeFloorTexture() {
+      const c = document.createElement('canvas');
+      c.width = 1024;
+      c.height = 1024;
+      const ctx = c.getContext('2d');
+      const g = ctx.createRadialGradient(512, 512, 512 * 12.2 / 18, 512, 512, 512);
+      g.addColorStop(0, '#EDD6B0');
+      g.addColorStop(0.55, '#F3E1C3');
+      g.addColorStop(1, '#EFDAB8');
+      ctx.fillStyle = g;
+      ctx.fillRect(0, 0, 1024, 1024);
+      const tex = new THREE.CanvasTexture(c);
+      tex.colorSpace = THREE.SRGBColorSpace;
+      return tex;
+    }
+
+    function makeRadialAlphaTexture(stops) {
+      const c = document.createElement('canvas');
+      c.width = 256;
+      c.height = 256;
+      const ctx = c.getContext('2d');
+      const g = ctx.createRadialGradient(128, 128, 0, 128, 128, 128);
+      stops.forEach(([offset, color]) => g.addColorStop(offset, color));
+      ctx.fillStyle = g;
+      ctx.fillRect(0, 0, 256, 256);
+      const tex = new THREE.CanvasTexture(c);
+      tex.colorSpace = THREE.SRGBColorSpace;
+      return tex;
+    }
+
+    const outerWall = new THREE.Mesh(
+      new THREE.CylinderGeometry(18, 18, 6.2, 160, 1, true),
+      new THREE.MeshBasicMaterial({
+        map: makeVerticalGradientTexture([[0, '#F5EBD8'], [0.2, '#FBF3E3'], [0.6, '#FBF3E3'], [0.86, '#F8EDD9'], [1, '#EFDFC4']]),
+        side: THREE.BackSide
+      })
+    );
+    outerWall.position.y = 3.1;
+    scene.add(outerWall);
+
+    const innerPillar = new THREE.Mesh(
+      new THREE.CylinderGeometry(12.2, 12.2, 6.2, 120, 1, true),
+      new THREE.MeshBasicMaterial({
+        map: makeVerticalGradientTexture([[0, '#F7EEDD'], [0.3, '#FFFAF0'], [0.8, '#FDF5E6'], [1, '#F1E1C6']]),
+        side: THREE.FrontSide
+      })
+    );
+    innerPillar.position.y = 3.1;
+    scene.add(innerPillar);
+
+    const floorMesh = new THREE.Mesh(
+      new THREE.CircleGeometry(18, 160),
+      new THREE.MeshBasicMaterial({ map: makeFloorTexture() })
+    );
+    floorMesh.rotation.x = -Math.PI / 2;
+    scene.add(floorMesh);
+
+    const ceilingMesh = new THREE.Mesh(
+      new THREE.CircleGeometry(18, 160),
+      new THREE.MeshBasicMaterial({ color: '#FAF1E0', side: THREE.BackSide })
+    );
+    ceilingMesh.rotation.x = -Math.PI / 2;
+    ceilingMesh.position.y = 6.2;
+    scene.add(ceilingMesh);
+
+    // --- Frames ---
+    // Every frame is built from unit-sized pieces and scaled to its photo's shape.
+    const PY = 1.95;            // height of frame centres
+    const BOX_H = 1.83;         // tallest a photo can be
+    const BOX_MAX_W = 2.3;      // widest a photo can be
+    const DEFAULT_ASPECT = 0.8; // shape used until a photo's real shape is known
+    const LABEL_CW = 512;
+    const LABEL_CH = 208;
+    const LABEL_W = 0.92;
+    const LABEL_H = LABEL_W * LABEL_CH / LABEL_CW;
+
+    const blankTex = new THREE.DataTexture(new Uint8Array([255, 255, 255, 255]), 1, 1);
+    blankTex.needsUpdate = true;
+
+    const haloMat = new THREE.MeshBasicMaterial({
+      map: makeRadialAlphaTexture([[0, 'rgba(255,255,255,0.95)'], [0.35, 'rgba(255,255,255,0.95)'], [1, 'rgba(255,255,255,0)']]),
+      transparent: true,
+      depthWrite: false,
+      fog: true
+    });
+    const shadowMat = new THREE.MeshBasicMaterial({
+      map: makeRadialAlphaTexture([[0, 'rgba(120,90,50,0.28)'], [0.25, 'rgba(120,90,50,0.28)'], [1, 'rgba(120,90,50,0)']]),
+      transparent: true,
+      depthWrite: false,
+      fog: true
+    });
+    const frameMat = new THREE.MeshBasicMaterial({ color: '#D3AA72', fog: true });
+    const placeholderMat = new THREE.MeshBasicMaterial({ color: '#F6EAD8', fog: true });
+
+    const unitPlane = new THREE.PlaneGeometry(1, 1);
+    const frameGeo = new THREE.BoxGeometry(1, 1, 0.06);
+    const labelGeo = new THREE.PlaneGeometry(LABEL_W, LABEL_H);
+
+    const slots = [];
+    const artMeshes = [];
+
+    function createSlot(wall, index, count, theta, radius) {
+      const group = new THREE.Group();
+      const gx = radius * Math.cos(theta);
+      const gz = radius * Math.sin(theta);
+      group.position.set(gx, 0, gz);
+      if (wall === 'outer') {
+        group.lookAt(0, 0, 0);
+      } else {
+        group.lookAt(2 * gx, 0, 2 * gz);
+      }
+
+      const halo = new THREE.Mesh(unitPlane, haloMat);
+      halo.position.set(0, PY + 0.05, 0.005);
+      group.add(halo);
+
+      const shadow = new THREE.Mesh(unitPlane, shadowMat);
+      shadow.position.set(0.05, PY - 0.06, 0.01);
+      group.add(shadow);
+
+      const frame = new THREE.Mesh(frameGeo, frameMat);
+      frame.position.set(0, PY, 0.045);
+      group.add(frame);
+
+      const placeholder = new THREE.Mesh(unitPlane, placeholderMat);
+      placeholder.position.set(0, PY, 0.077);
+      group.add(placeholder);
+
+      const mat = new THREE.MeshBasicMaterial({ map: blankTex, transparent: true, opacity: 0, fog: true });
+      const art = new THREE.Mesh(unitPlane, mat);
+      art.position.set(0, PY, 0.08);
+      group.add(art);
+
+      const labelCanvas = document.createElement('canvas');
+      labelCanvas.width = LABEL_CW;
+      labelCanvas.height = LABEL_CH;
+      const labelTex = new THREE.CanvasTexture(labelCanvas);
+      labelTex.colorSpace = THREE.SRGBColorSpace;
+      const label = new THREE.Mesh(
+        labelGeo,
+        new THREE.MeshBasicMaterial({ map: labelTex, transparent: true, depthWrite: false, fog: true })
+      );
+      group.add(label);
+
+      scene.add(group);
+
+      const slot = {
+        wall, index, count, theta,
+        group, halo, shadow, frame, placeholder, art, mat, label, labelCanvas, labelTex,
+        photoIdx: -1,
+        lap: null,
+        token: 0,
+        tex: null,
+        hiTex: null,
+        hiLoading: false,
+        needsLoad: false,
+        fadeStart: -1,
+        w: 1,
+        h: 1
+      };
+      art.userData.slot = slot;
+      artMeshes.push(art);
+      slots.push(slot);
+      setSlotSize(slot, DEFAULT_ASPECT);
+      return slot;
+    }
+
+    function setSlotSize(slot, aspect) {
+      const h = Math.min(BOX_H, BOX_MAX_W / aspect);
+      const w = h * aspect;
+      slot.w = w;
+      slot.h = h;
+      slot.art.scale.set(w, h, 1);
+      slot.placeholder.scale.set(w, h, 1);
+      slot.frame.scale.set(w + 0.07, h + 0.07, 1);
+      slot.halo.scale.set(w + 1.5, 1.75 * h, 1);
+      slot.shadow.scale.set(w + 0.34, 1.18 * h, 1);
+      slot.label.position.set(-w / 2 + LABEL_W / 2, PY - h / 2 - 0.42, 0.02);
+    }
+
+    function drawLabel(slot) {
+      const ctx = slot.labelCanvas.getContext('2d');
+      ctx.clearRect(0, 0, LABEL_CW, LABEL_CH);
+      if (slot.photoIdx >= 0) {
+        ctx.fillStyle = '#3A3550';
+        ctx.font = '500 46px "Newsreader", Georgia, serif';
+        ctx.fillText(WALL_LABEL, 24, 66);
+      }
+      slot.labelTex.needsUpdate = true;
+    }
+
+    const OUTER_COUNT = 36;
+    const INNER_COUNT = 24;
+    for (let s = 0; s < OUTER_COUNT; s++) {
+      createSlot('outer', s, OUTER_COUNT, s * (2 * Math.PI / OUTER_COUNT), 17.98);
+    }
+    for (let k = 0; k < INNER_COUNT; k++) {
+      createSlot('inner', k, INNER_COUNT, (k + 0.5) * (2 * Math.PI / INNER_COUNT), 12.22);
+    }
+
+    // --- Loading photos (memory-limited) ---
+    // Each photo is downloaded, shrunk on a canvas, sent to the GPU, and the canvas is then
+    // emptied, so only the small GPU copy stays in memory.
+    async function loadScaled(url, maxEdge) {
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.decoding = 'async';
+      img.src = url;
+      if (img.decode) {
+        await img.decode();
+      } else {
+        await new Promise((resolve, reject) => {
+          img.onload = resolve;
+          img.onerror = reject;
+        });
+      }
+      const iw = img.naturalWidth;
+      const ih = img.naturalHeight;
+      if (!iw || !ih) throw new Error('Image has no size');
+
+      const scale = Math.min(1, maxEdge / Math.max(iw, ih));
+      const tw = Math.max(1, Math.round(iw * scale));
+      const th = Math.max(1, Math.round(ih * scale));
+
+      // Halve in steps for very large photos so the result stays sharp.
+      let src = img;
+      let sw = iw;
+      let sh = ih;
+      while (sw > tw * 2) {
+        const nw = Math.round(sw / 2);
+        const nh = Math.round(sh / 2);
+        const step = document.createElement('canvas');
+        step.width = nw;
+        step.height = nh;
+        const sctx = step.getContext('2d');
+        sctx.imageSmoothingQuality = 'high';
+        sctx.drawImage(src, 0, 0, nw, nh);
+        src = step;
+        sw = nw;
+        sh = nh;
+      }
+
+      const canvas = document.createElement('canvas');
+      canvas.width = tw;
+      canvas.height = th;
+      const ctx = canvas.getContext('2d');
+      ctx.imageSmoothingQuality = 'high';
+      ctx.drawImage(src, 0, 0, tw, th);
+      return { canvas, aspect: iw / ih };
+    }
+
+    function makeTexture(canvas) {
+      const tex = new THREE.CanvasTexture(canvas);
+      tex.colorSpace = THREE.SRGBColorSpace;
+      tex.anisotropy = maxAniso;
+      tex.onUpdate = () => {
+        tex.onUpdate = null;
+        canvas.width = 1;
+        canvas.height = 1;
+      };
+      renderer.initTexture(tex);
+      return tex;
+    }
+
+    function dropHiRes(slot) {
+      if (slot.hiTex) {
+        slot.mat.map = slot.tex || blankTex;
+        slot.hiTex.dispose();
+        slot.hiTex = null;
+      }
+    }
+
+    function assignPhoto(slot, idx) {
+      if (slot.photoIdx === idx) return;
+      slot.photoIdx = idx;
+      slot.token++;
+      dropHiRes(slot);
+      slot.hiLoading = false;
+      if (slot.tex) {
+        slot.tex.dispose();
+        slot.tex = null;
+      }
+      slot.mat.map = blankTex;
+      slot.mat.opacity = 0;
+      slot.fadeStart = -1;
+      setSlotSize(slot, aspectCache[idx] || DEFAULT_ASPECT);
+      drawLabel(slot);
+      slot.needsLoad = true;
+    }
+
+    // Which photo a frame shows depends on how many laps the visitor has walked, so the
+    // sequence keeps going round after round. A frame only changes once it is about half a
+    // lap away (behind the central pillar), with a little slack so it doesn't flicker.
+    function updateSlots() {
+      for (const slot of slots) {
+        const raw = (pose.th - slot.theta) / (2 * Math.PI);
+        if (slot.lap === null || Math.abs(raw - slot.lap) > 0.55) {
+          slot.lap = Math.round(raw);
+        }
+        const k = slot.index + slot.count * slot.lap;
+        const idx = slot.wall === 'outer' ? mod(-k - 1, N) : mod(-k + INNER_OFFSET, N);
+        assignPhoto(slot, idx);
+      }
+    }
+
+    let activeLoads = 0;
+    let settledLoads = 0;
+    let resolveFirstLoads;
+    const firstLoadsPromise = new Promise((resolve) => {
+      resolveFirstLoads = resolve;
+    });
+
+    function pumpLoads() {
+      while (activeLoads < MAX_CONCURRENT) {
+        let best = null;
+        let bestD = Infinity;
+        for (const slot of slots) {
+          if (!slot.needsLoad) continue;
+          const d = Math.abs(wrapAngle(slot.theta - pose.th));
+          if (d < bestD) {
+            bestD = d;
+            best = slot;
+          }
+        }
+        if (!best) return;
+        best.needsLoad = false;
+        startLoad(best);
+      }
+    }
+
+    function startLoad(slot) {
+      const token = slot.token;
+      const idx = slot.photoIdx;
+      activeLoads++;
+      loadScaled(photoURL(idx), WALL_EDGE)
+        .then(({ canvas, aspect }) => {
+          aspectCache[idx] = aspect;
+          if (slot.token !== token) return;
+          slot.tex = makeTexture(canvas);
+          slot.mat.map = slot.tex;
+          setSlotSize(slot, aspect);
+          if (isReducedMotion()) {
+            slot.mat.opacity = 1;
+          } else {
+            slot.fadeStart = performance.now();
+          }
+          if (focusedSlot === slot && !glide) loadHiRes(slot);
+        })
+        .catch(() => {
+          console.warn(`Could not load ${photoURL(idx)}`);
+        })
+        .finally(() => {
+          activeLoads--;
+          settledLoads++;
+          if (settledLoads >= 6) resolveFirstLoads();
+        });
+    }
+
+    function loadHiRes(slot) {
+      if (!slot.tex || slot.hiTex || slot.hiLoading) return;
+      const token = slot.token;
+      slot.hiLoading = true;
+      loadScaled(photoURL(slot.photoIdx), CLOSE_EDGE)
+        .then(({ canvas }) => {
+          if (slot.token !== token || focusedSlot !== slot || slot.hiTex) return;
+          slot.hiTex = makeTexture(canvas);
+          slot.mat.map = slot.hiTex;
+        })
+        .catch(() => {})
+        .finally(() => {
+          if (slot.token === token) slot.hiLoading = false;
+        });
+    }
+
+    // --- Camera Pose & Navigation State ---
+    const STEP = (2 * Math.PI) / OUTER_COUNT;
+    const getWalkOffsetD = () => (isPortraitSmall() ? 0.14 + 0.9 * STEP : 0.14);
+
+    function getWalkPoseParams() {
+      if (isPortraitSmall()) {
+        return { r: 15.4, yaw: -0.42, y: 1.90, pitch: -0.10 };
+      }
+      return { r: 15.6, yaw: -0.30, y: 1.92, pitch: -0.12 };
+    }
+
+    function getFocusPoseParams(wall) {
+      if (isPortraitSmall()) {
+        return wall === 'outer'
+          ? { r: 18 - 5.2, yaw: Math.PI / 2, y: PY - 1.05, pitch: 0 }
+          : { r: 12.2 + 5.2, yaw: -Math.PI / 2, y: PY - 1.05, pitch: 0 };
+      }
+      return wall === 'outer'
+        ? { r: 18 - 4.26, yaw: Math.PI / 2, y: PY - 0.52, pitch: 0 }
+        : { r: 12.2 + 4.26, yaw: -Math.PI / 2, y: PY - 0.52, pitch: 0 };
+    }
+
+    let D = getWalkOffsetD();
+    const initialWalk = getWalkPoseParams();
+    const pose = {
+      th: D + 0.16,
+      r: initialWalk.r - 0.35,
+      yaw: initialWalk.yaw,
+      y: initialWalk.y,
+      pitch: initialWalk.pitch
+    };
+    let targetTh = D;
+    let focusedSlot = null;
+    let glide = null;
+    let introGlide = null;
+
+    function applyCameraPose() {
+      const px = pose.r * Math.cos(pose.th);
+      const pz = pose.r * Math.sin(pose.th);
+      const tx = Math.sin(pose.th);
+      const tz = -Math.cos(pose.th);
+      const nx = Math.cos(pose.th);
+      const nz = Math.sin(pose.th);
+      const dx = Math.cos(pose.yaw) * tx + Math.sin(pose.yaw) * nx;
+      const dz = Math.cos(pose.yaw) * tz + Math.sin(pose.yaw) * nz;
+      camera.position.set(px, pose.y, pz);
+      camera.lookAt(px + dx, pose.y + pose.pitch, pz + dz);
+    }
+
+    const hint1El = document.getElementById('hint-1');
+    const hint2El = document.getElementById('hint-2');
+    const openPillEl = document.getElementById('open-pill');
+
+    function setHintMode(focused) {
+      if (focused) {
+        hint1El.textContent = 'Click the photo to open it';
+        hint2El.textContent = 'Esc or click away to step back';
+      } else {
+        hint1El.textContent = 'Scroll or drag to walk round';
+        hint2El.textContent = 'Click a photo to look closer';
+      }
+    }
+
+    function startGlide(toPose, durationSec, onComplete) {
+      if (isReducedMotion() || durationSec <= 0) {
+        Object.assign(pose, toPose);
+        glide = null;
+        if (onComplete) onComplete();
+        return;
+      }
+      glide = {
+        from: { ...pose },
+        to: { ...toPose },
+        elapsed: 0,
+        duration: durationSec,
+        onComplete
+      };
+    }
+
+    function focusSlot(slot) {
+      if (focusedSlot && focusedSlot !== slot) dropHiRes(focusedSlot);
+      focusedSlot = slot;
+      setHintMode(true);
+      const fp = getFocusPoseParams(slot.wall);
+      const destTh = pose.th + wrapAngle(slot.theta - pose.th);
+      targetTh = destTh;
+      startGlide({ th: destTh, r: fp.r, yaw: fp.yaw, y: fp.y, pitch: fp.pitch }, 0.95, () => {
+        if (focusedSlot === slot) loadHiRes(slot);
+      });
+    }
+
+    function stepBackToWalk() {
+      if (!focusedSlot && !glide) return;
+      if (focusedSlot) dropHiRes(focusedSlot);
+      focusedSlot = null;
+      setHintMode(false);
+      openPillEl.style.opacity = '0';
+      const wp = getWalkPoseParams();
+      D = getWalkOffsetD();
+      targetTh = pose.th + D;
+      startGlide({ th: targetTh, r: wp.r, yaw: wp.yaw, y: wp.y, pitch: wp.pitch }, 0.95);
+    }
+
+    // --- Intro Entrance ---
+    let introStarted = false;
+    function startIntro() {
+      if (introStarted) return;
+      introStarted = true;
+      slots.forEach(drawLabel);
+
+      const veil = document.getElementById('veil');
+      const wp = getWalkPoseParams();
+      D = getWalkOffsetD();
+      targetTh = D;
+
+      if (isReducedMotion()) {
+        veil.style.display = 'none';
+        Object.assign(pose, { th: D, ...wp });
+        return;
+      }
+
+      veil.animate([{ opacity: 1 }, { opacity: 0 }], {
+        duration: 900,
+        easing: 'ease-out',
+        fill: 'forwards'
+      }).onfinish = () => {
+        veil.style.display = 'none';
+      };
+
+      introGlide = {
+        from: { th: D + 0.16, r: wp.r - 0.35, yaw: wp.yaw, y: wp.y, pitch: wp.pitch },
+        to: { th: D, r: wp.r, yaw: wp.yaw, y: wp.y, pitch: wp.pitch },
+        elapsed: 0,
+        duration: 1.4
+      };
+
+      const rises = Array.from(document.querySelectorAll('.gui .rise'));
+      rises.forEach((el, idx) => {
+        el.animate(
+          [{ transform: 'translateY(105%)' }, { transform: 'translateY(0)' }],
+          {
+            duration: 1000,
+            delay: 250 + idx * 60,
+            easing: 'cubic-bezier(.2,.7,.2,1)',
+            fill: 'backwards'
+          }
+        );
+      });
+    }
+
+    // Labels need the fonts; redraw once they are ready.
+    document.fonts.ready.then(() => slots.forEach(drawLabel));
+
+    // Start once the nearest photos are in (or after 4 s, whichever comes first).
+    const failsafeTimer = setTimeout(startIntro, 4000);
+    Promise.all([firstLoadsPromise, document.fonts.ready]).then(() => {
+      clearTimeout(failsafeTimer);
+      startIntro();
+    });
+
+    // --- Raycasting & Projected Screen Rectangles ---
+    const raycaster = new THREE.Raycaster();
+    const pointerNDC = new THREE.Vector2();
+
+    function getProjectedScreenRect(mesh) {
+      mesh.updateWorldMatrix(true, false);
+      const corners = [
+        new THREE.Vector3(-0.5, -0.5, 0),
+        new THREE.Vector3(0.5, -0.5, 0),
+        new THREE.Vector3(0.5, 0.5, 0),
+        new THREE.Vector3(-0.5, 0.5, 0)
+      ];
+      let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+      corners.forEach((v) => {
+        v.applyMatrix4(mesh.matrixWorld);
+        v.project(camera);
+        const sx = (v.x * 0.5 + 0.5) * window.innerWidth;
+        const sy = (-v.y * 0.5 + 0.5) * window.innerHeight;
+        minX = Math.min(minX, sx);
+        maxX = Math.max(maxX, sx);
+        minY = Math.min(minY, sy);
+        maxY = Math.max(maxY, sy);
+      });
+      return { left: minX, top: minY, width: Math.max(1, maxX - minX), height: Math.max(1, maxY - minY) };
+    }
+
+    function raycastSlot(clientX, clientY) {
+      pointerNDC.x = (clientX / window.innerWidth) * 2 - 1;
+      pointerNDC.y = -(clientY / window.innerHeight) * 2 + 1;
+      raycaster.setFromCamera(pointerNDC, camera);
+      const hits = raycaster.intersectObjects(artMeshes, false);
+      return hits.length > 0 ? hits[0].object.userData.slot : null;
+    }
+
+    // --- Gallery Pointer, Wheel & Keyboard Controls (direction reversed) ---
+    let pointerDown = false;
+    let dragging = false;
+    let downX = 0;
+    let downY = 0;
+    let downTargetTh = 0;
+
+    galleryEl.addEventListener('pointerdown', (e) => {
+      if (isOverlayOpen()) return;
+      pointerDown = true;
+      dragging = false;
+      downX = e.clientX;
+      downY = e.clientY;
+      downTargetTh = targetTh;
+      galleryEl.setPointerCapture(e.pointerId);
+    });
+
+    galleryEl.addEventListener('pointermove', (e) => {
+      if (isOverlayOpen()) return;
+
+      if (pointerDown) {
+        const dx = e.clientX - downX;
+        const dy = e.clientY - downY;
+        if (!dragging && Math.hypot(dx, dy) > 6) {
+          dragging = true;
+          galleryEl.classList.add('dragging');
+          if (focusedSlot) {
+            stepBackToWalk();
+            downTargetTh = targetTh;
+          }
+        }
+        if (dragging) {
+          const primaryDelta = Math.abs(dx) > Math.abs(dy) ? dx : dy;
+          const speed = isSmallScreen() ? 0.0042 : 0.0022;
+          targetTh = downTargetTh - primaryDelta * speed;
+          return;
+        }
+      }
+
+      const hit = raycastSlot(e.clientX, e.clientY);
+      galleryEl.classList.toggle('hover-print', Boolean(hit));
+
+      if (!isSmallScreen()) {
+        if (focusedSlot && hit === focusedSlot) {
+          openPillEl.style.left = `${e.clientX}px`;
+          openPillEl.style.top = `${e.clientY}px`;
+          openPillEl.style.opacity = '1';
+        } else {
+          openPillEl.style.opacity = '0';
+        }
+      }
+    });
+
+    galleryEl.addEventListener('pointerup', (e) => {
+      if (!pointerDown) return;
+      pointerDown = false;
+      galleryEl.classList.remove('dragging');
+      if (galleryEl.hasPointerCapture(e.pointerId)) {
+        galleryEl.releasePointerCapture(e.pointerId);
+      }
+
+      if (!dragging && !isOverlayOpen()) {
+        const hit = raycastSlot(e.clientX, e.clientY);
+        if (hit) {
+          if (focusedSlot === hit) {
+            openLightbox(hit.photoIdx);
+          } else {
+            focusSlot(hit);
+          }
+        } else if (focusedSlot) {
+          stepBackToWalk();
+        }
+      }
+      dragging = false;
+    });
+
+    galleryEl.addEventListener('wheel', (e) => {
+      if (isOverlayOpen()) return;
+      e.preventDefault();
+      if (focusedSlot) {
+        stepBackToWalk();
+      }
+      const delta = e.deltaMode === 1 ? e.deltaY * 33 : e.deltaY;
+      targetTh += delta * 0.0016;
+    }, { passive: false });
+
+    function stepSlot(dir) {
+      if (isOverlayOpen()) return;
+      if (focusedSlot) {
+        stepBackToWalk();
+      }
+      D = getWalkOffsetD();
+      targetTh = (Math.round((targetTh - D) / STEP) + dir) * STEP + D;
+    }
+
+    document.getElementById('btn-prev').addEventListener('click', () => stepSlot(-1));
+    document.getElementById('btn-next').addEventListener('click', () => stepSlot(1));
+
+    // --- List View ---
+    const listEl = document.getElementById('list');
+    const listGridEl = document.getElementById('list-grid');
+    const toggleGalleryBtn = document.getElementById('toggle-gallery');
+    const toggleListBtn = document.getElementById('toggle-list');
+    let listBuilt = false;
+
+    function buildList() {
+      if (listBuilt) return;
+      listBuilt = true;
+      const frag = document.createDocumentFragment();
+      PHOTOS.forEach((file, i) => {
+        const fig = document.createElement('figure');
+        const img = document.createElement('img');
+        img.loading = 'lazy';
+        img.decoding = 'async';
+        img.alt = photoLabel(i);
+        if (aspectCache[i]) img.style.aspectRatio = `auto ${aspectCache[i]}`;
+        img.src = photoURL(i);
+        fig.appendChild(img);
+        fig.addEventListener('click', () => openLightbox(i));
+        frag.appendChild(fig);
+      });
+      listGridEl.appendChild(frag);
+    }
+
+    function setToggle(listActive) {
+      toggleListBtn.classList.toggle('active', listActive);
+      toggleListBtn.setAttribute('aria-selected', String(listActive));
+      toggleGalleryBtn.classList.toggle('active', !listActive);
+      toggleGalleryBtn.setAttribute('aria-selected', String(!listActive));
+    }
+
+    function openListView() {
+      buildList();
+      listEl.classList.add('open');
+      setToggle(true);
+      syncOverlayState();
+    }
+
+    function returnToGallery() {
+      if (!listEl.classList.contains('open')) return;
+      listEl.classList.remove('open');
+      setToggle(false);
+      syncOverlayState();
+    }
+
+    toggleGalleryBtn.addEventListener('click', returnToGallery);
+    toggleListBtn.addEventListener('click', openListView);
+
+    // --- Lightbox ---
+    const lightboxEl = document.getElementById('lightbox');
+    const lbImg = document.getElementById('lb-img');
+    let lbIndex = 0;
+
+    function showLightboxPhoto(i) {
+      lbIndex = mod(i, N);
+      lbImg.src = photoURL(lbIndex);
+      lbImg.alt = photoLabel(lbIndex);
+    }
+
+    function openLightbox(i) {
+      showLightboxPhoto(i);
+      lightboxEl.classList.add('open');
+      syncOverlayState();
+    }
+
+    function closeLightbox() {
+      lightboxEl.classList.remove('open');
+      syncOverlayState();
+    }
+
+    function isLightboxOpen() {
+      return lightboxEl.classList.contains('open');
+    }
+
+    document.getElementById('lb-close').addEventListener('click', closeLightbox);
+    document.getElementById('lb-prev').addEventListener('click', () => showLightboxPhoto(lbIndex - 1));
+    document.getElementById('lb-next').addEventListener('click', () => showLightboxPhoto(lbIndex + 1));
+    lightboxEl.addEventListener('click', (e) => {
+      if (e.target === lightboxEl) closeLightbox();
+    });
+
+    // --- Overlay State ---
+    function isOverlayOpen() {
+      return listEl.classList.contains('open') || isLightboxOpen();
+    }
+
+    function syncOverlayState() {
+      const listOpen = listEl.classList.contains('open');
+      document.body.classList.toggle('list-open', listOpen);
+      listEl.setAttribute('aria-hidden', String(!listOpen));
+      lightboxEl.setAttribute('aria-hidden', String(!isLightboxOpen()));
+      openPillEl.style.opacity = '0';
+    }
+
+    window.addEventListener('keydown', (e) => {
+      if (isLightboxOpen()) {
+        if (e.key === 'Escape') closeLightbox();
+        else if (e.key === 'ArrowRight') showLightboxPhoto(lbIndex + 1);
+        else if (e.key === 'ArrowLeft') showLightboxPhoto(lbIndex - 1);
+        return;
+      }
+      if (e.key === 'Escape') {
+        if (listEl.classList.contains('open')) {
+          returnToGallery();
+        } else if (focusedSlot) {
+          stepBackToWalk();
+        }
+        return;
+      }
+      if (!isOverlayOpen()) {
+        if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+          e.preventDefault();
+          stepSlot(1);
+        } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+          e.preventDefault();
+          stepSlot(-1);
+        }
+      }
+    });
+
+    window.addEventListener('resize', () => {
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+      camera.fov = w >= h ? 56 : 70;
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      renderer.setSize(w, h);
+    });
+
+    // --- Animation Loop ---
+    let lastTime = performance.now();
+
+    function animate(now) {
+      requestAnimationFrame(animate);
+      const dt = Math.min((now - lastTime) / 1000, 0.05);
+      lastTime = now;
+
+      if (introGlide) {
+        introGlide.elapsed += dt;
+        const rawT = Math.min(1, introGlide.elapsed / introGlide.duration);
+        const eased = rawT === 1 ? 1 : 1 - Math.pow(2, -10 * rawT);
+        for (const key of ['th', 'r', 'yaw', 'y', 'pitch']) {
+          pose[key] = introGlide.from[key] + (introGlide.to[key] - introGlide.from[key]) * eased;
+        }
+        if (rawT >= 1) {
+          introGlide = null;
+        }
+      } else if (glide) {
+        glide.elapsed += dt;
+        const t = Math.min(1, glide.elapsed / glide.duration);
+        const easeTh = 1 - Math.pow(1 - t, 4);
+        const easeYaw = 1 - Math.pow(1 - t, 2);
+        const easeCubic = 1 - Math.pow(1 - t, 3);
+
+        pose.th = glide.from.th + (glide.to.th - glide.from.th) * easeTh;
+        pose.yaw = glide.from.yaw + (glide.to.yaw - glide.from.yaw) * easeYaw;
+        pose.r = glide.from.r + (glide.to.r - glide.from.r) * easeCubic;
+        pose.y = glide.from.y + (glide.to.y - glide.from.y) * easeCubic;
+        pose.pitch = glide.from.pitch + (glide.to.pitch - glide.from.pitch) * easeCubic;
+
+        if (t >= 1) {
+          const done = glide.onComplete;
+          glide = null;
+          if (done) done();
+        }
+      } else if (!focusedSlot) {
+        if (isReducedMotion()) {
+          pose.th = targetTh;
+        } else {
+          pose.th += (targetTh - pose.th) * (1 - Math.exp(-dt / 0.36));
+        }
+      }
+
+      updateSlots();
+      pumpLoads();
+
+      for (const slot of slots) {
+        if (slot.fadeStart < 0) continue;
+        const t = (now - slot.fadeStart) / 450;
+        if (t >= 1) {
+          slot.mat.opacity = 1;
+          slot.fadeStart = -1;
+        } else {
+          slot.mat.opacity = Math.max(0, t);
+        }
+      }
+
+      applyCameraPose();
+
+      // Small-screen automatic pill positioning on focused photo
+      if (isSmallScreen() && focusedSlot && !glide && !isOverlayOpen()) {
+        const rect = getProjectedScreenRect(focusedSlot.art);
+        openPillEl.style.left = `${rect.left + rect.width * 0.5}px`;
+        openPillEl.style.top = `${rect.top + rect.height * 0.55}px`;
+        openPillEl.style.opacity = '1';
+      }
+
+      renderer.render(scene, camera);
+    }
+
+    requestAnimationFrame(animate);
+  </script>
+</body>
+</html>

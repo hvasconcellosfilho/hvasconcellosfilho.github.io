@@ -202,11 +202,11 @@
   ───────────────────────────────────────── */
 
   /* Start hidden; JS handles all transform/transition */
-  .col-intro { opacity: 0; }
-  .col-photo { opacity: 0; }
+  .col-intro { opacity: 0; position: relative; z-index: 0; }
+  .col-photo { opacity: 0; position: relative; z-index: 0; }
 
   /* Cards hidden until phase 2 */
-  .col-cards { opacity: 0; }
+  .col-cards { opacity: 0; position: relative; z-index: 1; }
   .col-cards.phase2 { animation: riseUp 0.65s ease forwards; }
 
   /* Buttons hidden until phase 2 */

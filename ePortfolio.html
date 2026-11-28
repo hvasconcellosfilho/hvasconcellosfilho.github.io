@@ -706,21 +706,7 @@
     }
     document.cookie = 'googtrans=/en/' + code + '; path=/';
     document.cookie = 'googtrans=/en/' + code + '; path=/; domain=' + location.hostname;
-    // Also try the combo select if the widget is ready
-    var attempts = 0;
-    function trySelect() {
-      var sel = document.querySelector('select.goog-te-combo');
-      if (sel) {
-        sel.value = code;
-        sel.dispatchEvent(new Event('change'));
-      } else if (attempts++ < 10) {
-        setTimeout(trySelect, 300);
-      } else {
-        // Widget not ready — cookie is set, reload to apply
-        location.reload();
-      }
-    }
-    trySelect();
+    location.reload();
   }
 
   // Close everything on outside click
